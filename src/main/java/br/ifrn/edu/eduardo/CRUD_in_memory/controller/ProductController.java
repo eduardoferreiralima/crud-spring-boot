@@ -2,6 +2,7 @@ package br.ifrn.edu.eduardo.CRUD_in_memory.controller;
 
 import br.ifrn.edu.eduardo.CRUD_in_memory.models.Produto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,16 @@ public class ProductController {
     public ResponseEntity<Produto> getProduct(@PathVariable long id){
         for(Produto produto : produtos){
             if(produto.getId() == id){
+                return ResponseEntity.status(HttpStatus.OK).body(produto);
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Produto> getProduct(@RequestParam String nome) {
+        for(Produto produto : produtos){
+            if(produto.getNome() == nome){
                 return ResponseEntity.ok(produto);
             }
         }
@@ -32,18 +43,18 @@ public class ProductController {
     }
 
     @PostMapping
-    public Produto create(@RequestBody Produto prod){
+    public ResponseEntity<Produto> create(@RequestBody Produto prod){
         Produto produto = new Produto();
         produto.setId(counter.incrementAndGet());
         produto.setNome(prod.getNome());
         produto.setPreco(prod.getPreco());
         produto.setQuantidade(prod.getQuantidade());
         produtos.add(produto);
-        return produto;
+        return ResponseEntity.status(HttpStatus.CREATED).body(produto);
     }
 
     @PutMapping(value = "/{id}")
-    public Produto update(@PathVariable long id, @RequestBody Produto prod){
+    public ResponseEntity<Produto> update(@PathVariable long id, @RequestBody Produto prod){
         for(Produto produtoUpdate : produtos){
             if(produtoUpdate.getId() == id){
                 produtoUpdate.setId(produtoUpdate.getId());
@@ -52,7 +63,7 @@ public class ProductController {
                 produtoUpdate.setQuantidade(prod.getQuantidade());
             }
         }
-        return prod;
+        return ResponseEntity.status(HttpStatus.OK).body(prod);
     }
 
     @DeleteMapping("/{id}")
